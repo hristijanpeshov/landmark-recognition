@@ -5,7 +5,7 @@ import 'package:landmark_recognition/models/landmark.dart';
 
 class LandmarkRepository {
   static const String _baseUrl =
-      'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDsscYGPDgRsWajgWL9t8caMPzm2g5pXoU';
+      'https://vision.googleapis.com/v1/images:annotate?key=';
 
   final Dio _dio;
 
