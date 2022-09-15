@@ -1,11 +1,10 @@
-import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:landmark_recognition/landmark_repository.dart';
-import 'package:landmark_recognition/preview-page.dart';
-import 'dart:io' as Io;
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:io' as Io;
+
+import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:landmark_recognition/landmark_repository.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key, required this.cameras}) : super(key: key);
@@ -25,11 +24,11 @@ class _CameraPageState extends State<CameraPage> {
   var description = "";
 
   // Holds the position information of the rectangle
-  Map<String, double> _position = {
-    'x1': 0,
-    'y1': 0,
-    'x2': 0,
-    'y2': 0,
+  Map<String, List> _position = {
+    'a': [0, 0],
+    'b': [0, 0],
+    'c': [0, 0],
+    'd': [0, 0],
   };
 
   @override
@@ -76,16 +75,19 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
-
   // Some logic to get the rectangle values
   void updateRectanglePosition(vertices) {
     setState(() {
       // assign new position
       _position = {
-        'x1': vertices[0].x.toDouble(), // mala (vertices[0].x.toDouble() / 1000) * ((MediaQuery.of(context).size.width)),
-        'y1': vertices[0].y.toDouble(), // mala (vertices[0].y.toDouble() / 1000) * ((MediaQuery.of(context).size.height * 0.80)), //* 0.80,
-        'x2': vertices[1].x.toDouble(), // golema (vertices[1].x.toDouble() / 1000) * ((MediaQuery.of(context).size.width)), // - vertices[0].x.toDouble(),
-        'y2': vertices[2].y.toDouble(), // golema (vertices[2].y.toDouble() / 1000) * ((MediaQuery.of(context).size.height * 0.80)), //* 0.80 - vertices[0].y.toDouble()* 0.80,
+        'a': [vertices[0].x.toDouble(), vertices[0].y.toDouble()],
+        //.x.toDouble(), // mala (vertices[0].x.toDouble() / 1000) * ((MediaQuery.of(context).size.width)),
+        'b': [vertices[1].x.toDouble(), vertices[1].y.toDouble()],
+        //.y.toDouble(), // mala (vertices[0].y.toDouble() / 1000) * ((MediaQuery.of(context).size.height * 0.80)), //* 0.80,
+        'c': [vertices[2].x.toDouble(), vertices[2].y.toDouble()],
+        //.x.toDouble(), // golema (vertices[1].x.toDouble() / 1000) * ((MediaQuery.of(context).size.width)), // - vertices[0].x.toDouble(),
+        'd': [vertices[3].x.toDouble(), vertices[3].y.toDouble()],
+        //.y.toDouble(), // golema (vertices[2].y.toDouble() / 1000) * ((MediaQuery.of(context).size.height * 0.80)), //* 0.80 - vertices[0].y.toDouble()* 0.80,
       };
       _isRectangleVisible = true;
     });
@@ -104,25 +106,12 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     print("-----------------------------------------------------");
     print(MediaQuery.of(context).size.height);
     print(MediaQuery.of(context).size.width);
     return Scaffold(
-        // appBar: AppBar(
-        //   elevation: 1,
-        //   backgroundColor: Colors.grey,
-        //   title: Row(
-        //     children: const <Widget>[
-        //       Icon(Icons.camera_alt),
-        //       SizedBox(width: 5),
-        //       Text("Camera frame"),
-        //     ],
-        //   ),
-        // ),
         body: SafeArea(
       child: Stack(children: [
         (_cameraController.value.isInitialized)
@@ -136,64 +125,31 @@ class _CameraPageState extends State<CameraPage> {
             : Container(
                 color: Colors.black,
                 child: const Center(child: CircularProgressIndicator())),
-            if (_isRectangleVisible)
-              Positioned(
-                // color: Colors.white,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.80,
-                child: CustomPaint(
-                  painter: RectanglePainter(_position),
-                  // child: Text(
-                  //   "Custom Paint",
-                  //   style: TextStyle(fontSize: 30, fontStyle: FontStyle.italic),
-                  // ),
-                ),
+        if (_isRectangleVisible)
+          Positioned(
+            // color: Colors.white,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.80,
+            child: CustomPaint(
+              painter: RectanglePainter(
+                  _position,
+                  description,
+                  MediaQuery.of(context).size.width,
+                  MediaQuery.of(context).size.height * 0.80),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _isRectangleVisible = false;
+                  });
+                },
+                onDoubleTap: () {
+                  setState(() {
+                    _isRectangleVisible = false;
+                  });
+                },
               ),
-            //  if (_isRectangleVisible)
-            //   Positioned(
-            //   // left: _position['x'],
-            //   // top: _position['h'],
-            //   // right: _position['w'],
-            //   // bottom: _position['y'],
-            //   child: Material( child: InkWell(
-            //     onTap: () {
-            //       setState(() {
-            //         _isRectangleVisible = false;
-            //       });
-            //     },
-            //     // child: Container(
-            //     //   // width: 10, // _position['w'],
-            //     //   // height: _position['h'],
-            //     //   decoration: BoxDecoration(
-            //     //     // backgroundBlendMode: Color.fromRGBO(24,233, 111, 0.6),
-            //     //     // color: const Color.fromARGB(100, 22, 44, 33),
-            //     //     border: Border.all(
-            //     //       width: 2,
-            //     //       color: Colors.blue,
-            //     //     ),
-            //     //   ),
-            //     //   child: Align(
-            //     //     alignment: Alignment.topLeft,
-            //     //     child: Container(
-            //     //       color: Colors.blue,
-            //     //       child: Text(
-            //     //         description,
-            //     //         style: TextStyle(color: Colors.white),
-            //     //       ),
-            //     //     ),
-            //     //   ),
-            //     // ),
-            //     child: CustomPaint(
-            //
-            //       painter: RectanglePainter(),
-            //     // child: Text(
-            //     //   "Custom Paint",
-            //     //   style: TextStyle(fontSize: 30, fontStyle: FontStyle.italic),
-            //     // ),
-            //   ),
-            //   ),
-            //   ),
-            // ),
+            ),
+          ),
         Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -229,65 +185,16 @@ class _CameraPageState extends State<CameraPage> {
                 const Spacer(),
               ]),
             )),
-
       ]),
     ));
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   if (!_cameraController.value.isInitialized) {
-  //     return Container();
-  //   }
-  //   return Stack(
-  //     children: [
-  //       AspectRatio(
-  //         aspectRatio: _cameraController.value.aspectRatio,
-  //         child: _cameraController == null ? Container() : CameraPreview(
-  //             _cameraController),
-  //       ),
-  //       if (_isRectangleVisible)
-  //         Positioned(
-  //           left: _position['x'],
-  //           top: _position['y'],
-  //           child: Material( child: InkWell(
-  //             onTap: () {
-  //               // When the user taps on the rectangle, it will disappear
-  //               setState(() {
-  //                 _isRectangleVisible = false;
-  //               });
-  //             },
-  //             child: Container(
-  //               width: _position['w'],
-  //               height: _position['h'],
-  //               decoration: BoxDecoration(
-  //                 border: Border.all(
-  //                   width: 2,
-  //                   color: Colors.blue,
-  //                 ),
-  //               ),
-  //               child: Align(
-  //                 alignment: Alignment.topLeft,
-  //                 child: Container(
-  //                   color: Colors.blue,
-  //                   child: Text(
-  //                     'hourse -71%',
-  //                     style: TextStyle(color: Colors.white),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         )],
-  //   );
-  // }
-
 }
 
 class RectanglePainter extends CustomPainter {
-
-  final Map<String, double> pos;
+  final Map<String, List> pos;
+  final String desc;
+  final double width;
+  final double height;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -296,40 +203,47 @@ class RectanglePainter extends CustomPainter {
       ..strokeWidth = 10
       ..style = PaintingStyle.stroke;
 
-    final a = Offset(size.width * 1 / 6, size.height * 1 / 4);
-    final b = Offset(size.width * 5 / 6, size.height * 3 / 4);
-    // final rect = Rect.fromLTRB(10, 10, 10, 10);//pos['x1']!, pos['y2']!, pos['x2']!, pos['y1']!);
     print("krajjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
     print(size.width);
     print(this.pos);
 
-    // canvas.drawRect(rect, paint);
-    var x1 = (pos['x1']! / 1000) * 360;
-    var x2 = (pos['x2']! / 1000) * 360;
-    var y1 = (pos['y1']! / 1000) * 732;
-    var y2 = (pos['y2']! / 1000) * 732;
-    // canvas.drawPath(
-    //     Path()..addPolygon([
-    //       Offset(pos['x1']!, pos['y1']!),
-    //       Offset(pos['x1']!, pos['y2']!),
-    //       Offset(pos['x2']!, pos['y1']!),
-    //       Offset(pos['x2']!, pos['y2']!),
-    //     ], true),
-    //     paint);
-
     canvas.drawPath(
-        Path()..addPolygon([
-          Offset(x2, y1),
-          Offset(x1, y1),
-          Offset(x2, y2),
-          Offset(x1, y2),
-        ], true),
+        Path()
+          ..addPolygon([
+            Offset(
+                (pos['a']![0] / 1000) * width, (pos['a']![1] / 1000) * height),
+            Offset(
+                (pos['b']![0] / 1000) * width, (pos['b']![1] / 1000) * height),
+            Offset(
+                (pos['c']![0] / 1000) * width, (pos['c']![1] / 1000) * height),
+            Offset(
+                (pos['d']![0] / 1000) * width, (pos['d']![1] / 1000) * height),
+          ], true),
         paint);
-  }
 
+    const textStyle = TextStyle(
+      color: Colors.white,
+      fontSize: 10,
+    );
+    final textSpan = TextSpan(
+      text: desc,
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(
+      minWidth: 0,
+      maxWidth: size.width,
+    );
+    final offset = Offset(
+        (pos['a']![0] / 1000) * width, (pos['a']![1] / 1000) * height - 5);
+    textPainter.paint(canvas, offset);
+  }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 
-  RectanglePainter(this.pos);
+  RectanglePainter(this.pos, this.desc, this.width, this.height);
 }
