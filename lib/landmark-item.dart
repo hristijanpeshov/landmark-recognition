@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:landmark_recognition/models/hitory-landmark.dart';
 import 'package:landmark_recognition/models/landmark.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class LandmarkItem extends StatelessWidget {
   HistoryLandmark _landmark;
@@ -53,22 +54,28 @@ class LandmarkItem extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: const Text('no'),
-                    ),
-                    TextButton(
-                      onPressed: () {
                         _deleteItem(_landmark.id);
                         Navigator.of(context).pop(true);
                       },
                       child: const Text('Yes'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: const Text('No'),
                     ),
                   ],
                 );
               });
         },
         child: Card(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+          ),
           child: Container(
             margin: EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -76,11 +83,49 @@ class LandmarkItem extends StatelessWidget {
                   color: Theme.of(contx).primaryColorLight,
                   width: 2,
                 )),
-            child: ListTile(
+            child:
+            // Column(
+            //   children: [
+            //     Row(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: <Widget>[
+            //         Expanded(
+            //           flex: 2,
+            //           child: Text(
+            //             _landmark.description,
+            //             style: TextStyle(
+            //               fontSize: 25,
+            //               color: Theme.of(contx).primaryColorDark,
+            //               fontWeight: FontWeight.bold,
+            //             ),
+            //           ),
+            //         ),
+            //
+            //         Image.memory(base64Decode(_landmark.image), height: 120,),
+            //       ],
+            //     ),
+            //     Row(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: <Widget>[
+            //         Expanded(
+            //           flex: 2,
+            //           child: Text(
+            //                 DateFormat('dd-MM-yyyy – kk:mm').format(_landmark.dateTime),
+            //                 style: TextStyle(
+            //                   fontSize: 18,
+            //                   color: Theme.of(contx).primaryColor,
+            //                 ),
+            //               ),
+            //         ),
+            //       ],
+            //     )
+            //   ],
+            // )
+            ListTile(
               title: Text(
                 _landmark.description,
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 25,
                   color: Theme.of(contx).primaryColorDark,
                   fontWeight: FontWeight.bold,
                 ),
@@ -88,18 +133,12 @@ class LandmarkItem extends StatelessWidget {
               subtitle: Text(
                 DateFormat('dd-MM-yyyy – kk:mm').format(_landmark.dateTime),
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   color: Theme.of(contx).primaryColor,
                 ),
               ),
-              trailing: IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () =>
-                {
-                  /*delete here*/
-                },
-              ),
-            ), // Column(
+              trailing: Image.memory(base64Decode(_landmark.image)),
+            ),
             //   children: [
             //     Text(
             //       _course.name,

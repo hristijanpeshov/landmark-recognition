@@ -3,9 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_ml_vision/google_ml_vision.dart';
 import 'package:landmark_recognition/history.page.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'camera_page.dart';
 import 'home-page.dart';
+
+enum Menu { disableHistory }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,6 +84,27 @@ class _MyHomePageState extends State<MyHomePage> {
         MaterialPageRoute(builder: (_) => CameraPage(cameras: value))));
   }
 
+  bool showHistoryMenu() {
+    print('main');
+    final loggedInUser = FirebaseAuth.instance.currentUser;
+    print(loggedInUser);
+    return _selectedIndex == 2 && loggedInUser != null;
+  }
+
+
+  void disableHistory() {
+    print('logout');
+    final loggedInUser = FirebaseAuth.instance.currentUser;
+    if (loggedInUser != null) {
+      FirebaseAuth.instance.signOut()
+          .then((value) => {
+          setState(() {
+            _selectedIndex = 0;
+          })
+      });
+    }
+  }
+
   void _onItemTapped(int index) {
     if (index == 1) {
       openCamera();
@@ -107,6 +130,21 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: showHistoryMenu() ?
+        [PopupMenuButton<Menu>(
+            // Callback that sets the selected popup menu item.
+              onSelected: (Menu item) {
+                disableHistory();
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
+                const PopupMenuItem<Menu>(
+                  value: Menu.disableHistory,
+                  child: Text('Disable History'),
+                ),
+              ]),
+        ]
+          :
+          []
       ),
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(

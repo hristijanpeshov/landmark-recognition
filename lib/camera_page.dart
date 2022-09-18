@@ -22,16 +22,19 @@ class CameraPage extends StatefulWidget {
   State<CameraPage> createState() => _CameraPageState();
 }
 
-class _CameraPageState extends State<CameraPage> {
+class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
   late CameraController _cameraController;
   bool _isRearCameraSelected = true;
   User? loggedInUser = FirebaseAuth.instance.currentUser;
   final DatabaseReference? _dbRef = FirebaseDatabase.instance.ref();
   final uuid = const Uuid();
+  bool isLandmarkLoading = false;
 
   // Whether or not the rectangle is displayed
   bool _isRectangleVisible = false;
   var description = "";
+
+  late AnimationController loadingController;
 
   // Holds the position information of the rectangle
   Map<String, List> _position = {
@@ -44,6 +47,7 @@ class _CameraPageState extends State<CameraPage> {
   @override
   void dispose() {
     _cameraController.dispose();
+    loadingController.dispose();
     super.dispose();
   }
 
@@ -51,6 +55,13 @@ class _CameraPageState extends State<CameraPage> {
   void initState() {
     super.initState();
     initCamera(widget.cameras![0]);
+    loadingController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..addListener(() {
+      setState(() {});
+    });
+    loadingController.repeat(reverse: false);
   }
 
   void saveLandmark(Landmark landmark, String image) {
@@ -63,6 +74,9 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future takePicture() async {
+    setState(() {
+      isLandmarkLoading = true;
+    });
     if (!_cameraController.value.isInitialized) {
       return null;
     }
@@ -109,6 +123,11 @@ class _CameraPageState extends State<CameraPage> {
     } on CameraException catch (e) {
       debugPrint('Error occured while taking picture: $e');
       return null;
+    }
+    finally {
+      setState(() {
+        isLandmarkLoading = false;
+      });
     }
   }
 
@@ -211,6 +230,13 @@ class _CameraPageState extends State<CameraPage> {
                     initCamera(widget.cameras![_isRearCameraSelected ? 0 : 1]);
                   },
                 )),
+                    isLandmarkLoading ?
+                    CircularProgressIndicator(
+                      value: loadingController.value,
+                      color: Colors.grey[700],
+                      semanticsLabel: 'Circular progress indicator',
+                    )
+                        :
                 Expanded(
                     child: IconButton(
                   onPressed: takePicture,

@@ -17,18 +17,27 @@ class HistoryPage extends StatefulWidget {
   }
 }
 
-class _HistoryPageState extends State<HistoryPage> {
+class _HistoryPageState extends State<HistoryPage> with TickerProviderStateMixin {
   User? loggedInUser = FirebaseAuth.instance.currentUser;
   DatabaseReference? _dbRef = FirebaseDatabase.instance.ref();
   List<HistoryLandmark> historyLandmarks = [];
   // FirebaseAuth auth = FirebaseAuth.instance;
   //
+  bool isEnabling = false;
+  late AnimationController loadingController;
 
   @override
   void initState() {
     // TODO: implement initState
     initDb();
     super.initState();
+    loadingController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..addListener(() {
+      setState(() {});
+    });
+    loadingController.repeat(reverse: false);
   }
 
   void initDb() {
@@ -61,6 +70,9 @@ class _HistoryPageState extends State<HistoryPage> {
 
 
   Future<void> _signIn() async {
+    setState(() {
+      isEnabling = true;
+    });
     print('sign in');
     try {
       final userCredential = await FirebaseAuth.instance.signInAnonymously();
@@ -77,6 +89,11 @@ class _HistoryPageState extends State<HistoryPage> {
         default:
           print("Unknown error.");
       }
+    }
+    finally {
+      setState(() {
+        isEnabling = true;
+      });
     }
   }
 
@@ -118,6 +135,13 @@ class _HistoryPageState extends State<HistoryPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              isEnabling ?
+              CircularProgressIndicator(
+                value: loadingController.value,
+                color: Colors.grey[700],
+                semanticsLabel: 'Circular progress indicator',
+              )
+                  :
               ElevatedButton(
                 onPressed: _signIn,
                 child: Text('Enable'),
@@ -129,4 +153,9 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
+  @override
+  void dispose() {
+    loadingController.dispose();
+    super.dispose();
+  }
 }
