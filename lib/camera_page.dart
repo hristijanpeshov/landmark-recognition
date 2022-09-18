@@ -4,6 +4,7 @@ import 'dart:io' as Io;
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:landmark_recognition/details_page.dart';
 import 'package:landmark_recognition/landmark_repository.dart';
 
 class CameraPage extends StatefulWidget {
@@ -21,7 +22,8 @@ class _CameraPageState extends State<CameraPage> {
 
   // Whether or not the rectangle is displayed
   bool _isRectangleVisible = false;
-  var description = "";
+  late String description;
+  late String mid;
 
   // Holds the position information of the rectangle
   Map<String, List> _position = {
@@ -60,6 +62,7 @@ class _CameraPageState extends State<CameraPage> {
       if (landmark != null) {
         updateRectanglePosition(landmark.boundingPoly.vertices);
         description = landmark.description;
+        mid = landmark.mid;
       }
 
       // print(landmark.locations);
@@ -81,13 +84,9 @@ class _CameraPageState extends State<CameraPage> {
       // assign new position
       _position = {
         'a': [vertices[0].x.toDouble(), vertices[0].y.toDouble()],
-        //.x.toDouble(), // mala (vertices[0].x.toDouble() / 1000) * ((MediaQuery.of(context).size.width)),
         'b': [vertices[1].x.toDouble(), vertices[1].y.toDouble()],
-        //.y.toDouble(), // mala (vertices[0].y.toDouble() / 1000) * ((MediaQuery.of(context).size.height * 0.80)), //* 0.80,
         'c': [vertices[2].x.toDouble(), vertices[2].y.toDouble()],
-        //.x.toDouble(), // golema (vertices[1].x.toDouble() / 1000) * ((MediaQuery.of(context).size.width)), // - vertices[0].x.toDouble(),
         'd': [vertices[3].x.toDouble(), vertices[3].y.toDouble()],
-        //.y.toDouble(), // golema (vertices[2].y.toDouble() / 1000) * ((MediaQuery.of(context).size.height * 0.80)), //* 0.80 - vertices[0].y.toDouble()* 0.80,
       };
       _isRectangleVisible = true;
     });
@@ -108,9 +107,6 @@ class _CameraPageState extends State<CameraPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("-----------------------------------------------------");
-    print(MediaQuery.of(context).size.height);
-    print(MediaQuery.of(context).size.width);
     return Scaffold(
         body: SafeArea(
       child: Stack(children: [
@@ -145,6 +141,10 @@ class _CameraPageState extends State<CameraPage> {
                 onDoubleTap: () {
                   setState(() {
                     _isRectangleVisible = false;
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DetailsPage(mid: mid)));
                   });
                 },
               ),
@@ -202,10 +202,6 @@ class RectanglePainter extends CustomPainter {
       ..color = Colors.blue
       ..strokeWidth = 10
       ..style = PaintingStyle.stroke;
-
-    print("krajjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
-    print(size.width);
-    print(this.pos);
 
     canvas.drawPath(
         Path()
