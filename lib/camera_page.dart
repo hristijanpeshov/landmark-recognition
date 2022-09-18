@@ -2,9 +2,16 @@ import 'dart:convert';
 import 'dart:io' as Io;
 
 import 'package:camera/camera.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:landmark_recognition/landmark_repository.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:landmark_recognition/models/landmark.dart';
+import 'package:uuid/uuid.dart';
+
+import 'models/hitory-landmark.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key, required this.cameras}) : super(key: key);
@@ -18,6 +25,9 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   late CameraController _cameraController;
   bool _isRearCameraSelected = true;
+  User? loggedInUser = FirebaseAuth.instance.currentUser;
+  final DatabaseReference? _dbRef = FirebaseDatabase.instance.ref();
+  final uuid = const Uuid();
 
   // Whether or not the rectangle is displayed
   bool _isRectangleVisible = false;
@@ -43,6 +53,15 @@ class _CameraPageState extends State<CameraPage> {
     initCamera(widget.cameras![0]);
   }
 
+  void saveLandmark(Landmark landmark, String image) {
+    _dbRef?.child(loggedInUser!.uid).child(uuid.v1()).set(<String, Object>{
+      "mid": landmark.mid,
+      "description": landmark.description,
+      "image": image,
+      "dateTime": DateTime.now().toString()
+    });
+  }
+
   Future takePicture() async {
     if (!_cameraController.value.isInitialized) {
       return null;
@@ -53,6 +72,10 @@ class _CameraPageState extends State<CameraPage> {
     try {
       await _cameraController.setFlashMode(FlashMode.off);
       XFile picture = await _cameraController.takePicture();
+      var decodedImage = await decodeImageFromList(Io.File(picture.path).readAsBytesSync());
+      print('hereherehere');
+      print(decodedImage.width);
+      print(decodedImage.height);
       final bytes = Io.File(picture.path).readAsBytesSync();
       String bytesString = base64Encode(bytes);
 
@@ -60,6 +83,20 @@ class _CameraPageState extends State<CameraPage> {
       if (landmark != null) {
         updateRectanglePosition(landmark.boundingPoly.vertices);
         description = landmark.description;
+
+        if (loggedInUser != null) {
+          saveLandmark(landmark, bytesString);
+        }
+      }
+      else {
+        double position = (MediaQuery.of(context).size.height * 0.25).toDouble();
+        var snackBar = SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: position),
+          content: Text('The landmark was not recognized'),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
 
       // print(landmark.locations);
@@ -210,6 +247,14 @@ class RectanglePainter extends CustomPainter {
     canvas.drawPath(
         Path()
           ..addPolygon([
+            // Offset(
+            //     pos['a']![0], pos['a']![1]),
+            // Offset(
+            //     pos['b']![0], pos['b']![1]),
+            // Offset(
+            //     pos['c']![0], pos['c']![1]),
+            // Offset(
+            //     pos['d']![0], pos['d']![1]),
             Offset(
                 (pos['a']![0] / 1000) * width, (pos['a']![1] / 1000) * height),
             Offset(

@@ -1,16 +1,21 @@
 import 'package:camera/camera.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_ml_vision/google_ml_vision.dart';
+import 'package:landmark_recognition/history.page.dart';
 
 import 'camera_page.dart';
 import 'home-page.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  // const MyApp({Key? key}) : super(key: key);
+
+  final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
 
   // This widget is the root of your application.
   @override
@@ -20,7 +25,21 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: const MyHomePage(title: 'Landmark Recognition'),
+      home: FutureBuilder(
+        future: _fbApp,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            print("You have an error! ${snapshot.error.toString()}");
+            return Text('Something went wrong!');
+          } else if (snapshot.hasData) {
+            return MyHomePage(title: 'Landmark Recognition');
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
     );
   }
 }
@@ -55,10 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
       'There is a problem with your camera',
       style: menuTextStyle,
     ),
-    Text(
-      'Index 2: School',
-      style: menuTextStyle,
-    ),
+    HistoryPage(),
   ];
 
   void openCamera() async{

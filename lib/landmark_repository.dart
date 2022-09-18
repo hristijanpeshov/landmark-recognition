@@ -5,7 +5,7 @@ import 'package:landmark_recognition/models/landmark.dart';
 
 class LandmarkRepository {
   static const String _baseUrl =
-      'https://vision.googleapis.com/v1/images:annotate?key=';
+      'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDsscYGPDgRsWajgWL9t8caMPzm2g5pXoU';
 
   final Dio _dio;
 
@@ -29,7 +29,14 @@ class LandmarkRepository {
           ],
           "image": {
             "content": encodedImage
-          }
+          },
+          // "imageContext": {
+          //   "cropHintsParams": {
+          //     "aspectRatios": [
+          //       0.5625
+          //     ]
+          //   }
+          // },
         }
       ]
     };
