@@ -37,7 +37,6 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
   late String description;
   late String mid;
   GyroscopeEvent cameraEvent = GyroscopeEvent(0, 0, 0);
-  bool _isPictureTaken = false;
 
   late AnimationController loadingController;
 
@@ -68,6 +67,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
               ((cameraEvent.z - 0.3) < event.z &&
                   event.z < (cameraEvent.z + 0.3))) ==
           false) {
+        if (!mounted) return;
         setState(() {
           _isRectangleVisible = false;
         });
@@ -78,6 +78,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
       vsync: this,
       duration: const Duration(seconds: 3),
     )..addListener(() {
+      if (!mounted) return;
       setState(() {});
     });
     loadingController.repeat(reverse: false);
@@ -93,9 +94,6 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
   }
 
   Future takePicture() async {
-    setState(() {
-      isLandmarkLoading = true;
-    });
     if (!_cameraController.value.isInitialized) {
       return null;
     }
@@ -103,7 +101,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
       return null;
     }
     setState(() {
-      _isPictureTaken = true;
+      isLandmarkLoading = true;
     });
     try {
       await _cameraController.setFlashMode(FlashMode.off);
@@ -117,9 +115,11 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
 
       final landmark = await LandmarkRepository().getLandmarkInfo(bytesString);
       if (landmark != null) {
-        updateRectanglePosition(landmark.boundingPoly.vertices);
-        description = landmark.description;
-        mid = landmark.mid;
+        setState(() {
+          updateRectanglePosition(landmark.boundingPoly.vertices);
+          description = landmark.description;
+          mid = landmark.mid;
+        });
 
         if (loggedInUser != null) {
           saveLandmark(landmark, bytesString);
@@ -148,7 +148,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
   }
 
   void setGyroscope(GyroscopeEvent e) {
-    if (_isPictureTaken) {
+    if (isLandmarkLoading) {
       setState(() {
         cameraEvent = e;
       });
