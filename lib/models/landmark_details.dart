@@ -4,21 +4,21 @@ part 'landmark_details.g.dart';
 
 @JsonSerializable()
 class LandmarkDetails {
-  // String id;
+  String contentUrl;
   String detailedDescription;
   String name;
   String description;
+  List<dynamic> type;
 
-
-  LandmarkDetails(
-      // this.id,
-      this.detailedDescription,
-      this.name, this.description);
+  LandmarkDetails(this.contentUrl, this.detailedDescription, this.name,
+      this.description, this.type);
 
 
   @override
   String toString() {
-    return 'LandmarkDetails{name: $name, description: $description, detailedDescription: $detailedDescription}';
+    return 'LandmarkDetails{name: $name, description: $description, '
+        'detailedDescription: $detailedDescription, contentUrl: $contentUrl, '
+        'type: $type}';
   }
 
   factory LandmarkDetails.fromJson(Map<String, dynamic> json) => _$LandmarkDetailsFromJson(json);

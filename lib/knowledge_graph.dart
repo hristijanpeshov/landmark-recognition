@@ -13,7 +13,7 @@ class KnowledgeGraph {
       var service_url = 'https://kgsearch.googleapis.com/v1/entities:search?ids=$id&key=$API_KEY&limit=1&indent=True';
       final response = await _dio.get(service_url);
       // print("RESULTTTT");
-      // print(response.data["itemListElement"][0]["result"]["detailedDescription"]["articleBody"]);
+      // print(response.data["itemListElement"][0]["result"]["@type"]);
       return LandmarkDetails.fromJson(response.data["itemListElement"][0]["result"]);
   }
 }

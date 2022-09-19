@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:landmark_recognition/details_page.dart';
 import 'package:landmark_recognition/landmark_repository.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key, required this.cameras}) : super(key: key);
@@ -24,6 +25,8 @@ class _CameraPageState extends State<CameraPage> {
   bool _isRectangleVisible = false;
   late String description;
   late String mid;
+  GyroscopeEvent cameraEvent = GyroscopeEvent(0, 0, 0);
+  bool _isPictureTaken = false;
 
   // Holds the position information of the rectangle
   Map<String, List> _position = {
@@ -42,6 +45,20 @@ class _CameraPageState extends State<CameraPage> {
   @override
   void initState() {
     super.initState();
+    gyroscopeEvents.listen((GyroscopeEvent event) {
+      setGyroscope(event);
+      if ((((cameraEvent.x - 0.3) < event.x &&
+                  event.x < (cameraEvent.x + 0.3)) &&
+              ((cameraEvent.y - 0.3) < event.y &&
+                  event.y < (cameraEvent.y + 0.3)) &&
+              ((cameraEvent.z - 0.3) < event.z &&
+                  event.z < (cameraEvent.z + 0.3))) ==
+          false) {
+        setState(() {
+          _isRectangleVisible = false;
+        });
+      }
+    });
     initCamera(widget.cameras![0]);
   }
 
@@ -52,6 +69,9 @@ class _CameraPageState extends State<CameraPage> {
     if (_cameraController.value.isTakingPicture) {
       return null;
     }
+    setState(() {
+      _isPictureTaken = true;
+    });
     try {
       await _cameraController.setFlashMode(FlashMode.off);
       XFile picture = await _cameraController.takePicture();
@@ -65,16 +85,20 @@ class _CameraPageState extends State<CameraPage> {
         mid = landmark.mid;
       }
 
-      // print(landmark.locations);
-      //   Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //           builder: (context) => PreviewPage(
-      //                 picture: picture,
-      //               )));
     } on CameraException catch (e) {
       debugPrint('Error occured while taking picture: $e');
       return null;
+    }
+    finally {
+      _isPictureTaken = false;
+    }
+  }
+
+  void setGyroscope(GyroscopeEvent e) {
+    if (_isPictureTaken) {
+      setState(() {
+        cameraEvent = e;
+      });
     }
   }
 
