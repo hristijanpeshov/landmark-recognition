@@ -2,11 +2,18 @@ import 'dart:convert';
 import 'dart:io' as Io;
 
 import 'package:camera/camera.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:landmark_recognition/details_page.dart';
 import 'package:landmark_recognition/landmark_repository.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:landmark_recognition/models/landmark.dart';
+import 'package:uuid/uuid.dart';
+
+import 'models/hitory-landmark.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key, required this.cameras}) : super(key: key);
@@ -17,9 +24,13 @@ class CameraPage extends StatefulWidget {
   State<CameraPage> createState() => _CameraPageState();
 }
 
-class _CameraPageState extends State<CameraPage> {
+class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
   late CameraController _cameraController;
   bool _isRearCameraSelected = true;
+  User? loggedInUser = FirebaseAuth.instance.currentUser;
+  final DatabaseReference? _dbRef = FirebaseDatabase.instance.ref();
+  final uuid = const Uuid();
+  bool isLandmarkLoading = false;
 
   // Whether or not the rectangle is displayed
   bool _isRectangleVisible = false;
@@ -27,6 +38,8 @@ class _CameraPageState extends State<CameraPage> {
   late String mid;
   GyroscopeEvent cameraEvent = GyroscopeEvent(0, 0, 0);
   bool _isPictureTaken = false;
+
+  late AnimationController loadingController;
 
   // Holds the position information of the rectangle
   Map<String, List> _position = {
@@ -39,6 +52,7 @@ class _CameraPageState extends State<CameraPage> {
   @override
   void dispose() {
     _cameraController.dispose();
+    loadingController.dispose();
     super.dispose();
   }
 
@@ -60,9 +74,28 @@ class _CameraPageState extends State<CameraPage> {
       }
     });
     initCamera(widget.cameras![0]);
+    loadingController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..addListener(() {
+      setState(() {});
+    });
+    loadingController.repeat(reverse: false);
+  }
+
+  void saveLandmark(Landmark landmark, String image) {
+    _dbRef?.child(loggedInUser!.uid).child(uuid.v1()).set(<String, Object>{
+      "mid": landmark.mid,
+      "description": landmark.description,
+      "image": image,
+      "dateTime": DateTime.now().toString()
+    });
   }
 
   Future takePicture() async {
+    setState(() {
+      isLandmarkLoading = true;
+    });
     if (!_cameraController.value.isInitialized) {
       return null;
     }
@@ -75,6 +108,10 @@ class _CameraPageState extends State<CameraPage> {
     try {
       await _cameraController.setFlashMode(FlashMode.off);
       XFile picture = await _cameraController.takePicture();
+      var decodedImage = await decodeImageFromList(Io.File(picture.path).readAsBytesSync());
+      print('hereherehere');
+      print(decodedImage.width);
+      print(decodedImage.height);
       final bytes = Io.File(picture.path).readAsBytesSync();
       String bytesString = base64Encode(bytes);
 
@@ -83,6 +120,20 @@ class _CameraPageState extends State<CameraPage> {
         updateRectanglePosition(landmark.boundingPoly.vertices);
         description = landmark.description;
         mid = landmark.mid;
+
+        if (loggedInUser != null) {
+          saveLandmark(landmark, bytesString);
+        }
+      }
+      else {
+        double position = (MediaQuery.of(context).size.height * 0.25).toDouble();
+        var snackBar = SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: position),
+          content: Text('The landmark was not recognized'),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
 
     } on CameraException catch (e) {
@@ -90,7 +141,9 @@ class _CameraPageState extends State<CameraPage> {
       return null;
     }
     finally {
-      _isPictureTaken = false;
+      setState(() {
+        isLandmarkLoading = false;
+      });
     }
   }
 
@@ -198,6 +251,13 @@ class _CameraPageState extends State<CameraPage> {
                     initCamera(widget.cameras![_isRearCameraSelected ? 0 : 1]);
                   },
                 )),
+                    isLandmarkLoading ?
+                    CircularProgressIndicator(
+                      value: loadingController.value,
+                      color: Colors.grey[700],
+                      semanticsLabel: 'Circular progress indicator',
+                    )
+                        :
                 Expanded(
                     child: IconButton(
                   onPressed: takePicture,
@@ -230,6 +290,14 @@ class RectanglePainter extends CustomPainter {
     canvas.drawPath(
         Path()
           ..addPolygon([
+            // Offset(
+            //     pos['a']![0], pos['a']![1]),
+            // Offset(
+            //     pos['b']![0], pos['b']![1]),
+            // Offset(
+            //     pos['c']![0], pos['c']![1]),
+            // Offset(
+            //     pos['d']![0], pos['d']![1]),
             Offset(
                 (pos['a']![0] / 1000) * width, (pos['a']![1] / 1000) * height),
             Offset(

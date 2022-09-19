@@ -1,16 +1,23 @@
 import 'package:camera/camera.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_ml_vision/google_ml_vision.dart';
-
+import 'package:landmark_recognition/history.page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'camera_page.dart';
 import 'home-page.dart';
 
-void main() {
-  runApp(const MyApp());
+enum Menu { disableHistory }
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  // const MyApp({Key? key}) : super(key: key);
+
+  final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
 
   // This widget is the root of your application.
   @override
@@ -20,7 +27,21 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: const MyHomePage(title: 'Landmark Recognition'),
+      home: FutureBuilder(
+        future: _fbApp,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            print("You have an error! ${snapshot.error.toString()}");
+            return Text('Something went wrong!');
+          } else if (snapshot.hasData) {
+            return MyHomePage(title: 'Landmark Recognition');
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
     );
   }
 }
@@ -55,15 +76,33 @@ class _MyHomePageState extends State<MyHomePage> {
       'There is a problem with your camera',
       style: menuTextStyle,
     ),
-    Text(
-      'Index 2: School',
-      style: menuTextStyle,
-    ),
+    HistoryPage(),
   ];
 
   void openCamera() async{
     await availableCameras().then((value) => Navigator.push(context,
         MaterialPageRoute(builder: (_) => CameraPage(cameras: value))));
+  }
+
+  bool showHistoryMenu() {
+    print('main');
+    final loggedInUser = FirebaseAuth.instance.currentUser;
+    print(loggedInUser);
+    return _selectedIndex == 2 && loggedInUser != null;
+  }
+
+
+  void disableHistory() {
+    print('logout');
+    final loggedInUser = FirebaseAuth.instance.currentUser;
+    if (loggedInUser != null) {
+      FirebaseAuth.instance.signOut()
+          .then((value) => {
+          setState(() {
+            _selectedIndex = 0;
+          })
+      });
+    }
   }
 
   void _onItemTapped(int index) {
@@ -91,6 +130,21 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: showHistoryMenu() ?
+        [PopupMenuButton<Menu>(
+            // Callback that sets the selected popup menu item.
+              onSelected: (Menu item) {
+                disableHistory();
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
+                const PopupMenuItem<Menu>(
+                  value: Menu.disableHistory,
+                  child: Text('Disable History'),
+                ),
+              ]),
+        ]
+          :
+          []
       ),
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
