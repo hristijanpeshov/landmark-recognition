@@ -83,7 +83,7 @@ class _DetailsPageState extends State<DetailsPage> {
                     Positioned(
                       bottom: 0,
                       child: Container(
-                        height: size.height * 0.43,
+                        height: size.height * 0.45,
                         width: size.width,
                         decoration: const BoxDecoration(
                           color: Colors.white, // Color.fromRGBO(0, 25, 51, 20),
@@ -98,12 +98,12 @@ class _DetailsPageState extends State<DetailsPage> {
                               Center(
                                 child: Text(
                                   name,
-                                  style: const TextStyle(color: Colors.black, fontSize: 30),
+                                  style: const TextStyle(color: Colors.black, fontSize: 25),
                                 ),
                               ),
-                              const SizedBox(
-                                height: 7,
-                              ),
+                              // const SizedBox(
+                              //   height: 3,
+                              // ),
                               Center(
                                 child: Text(
                                   desc,
@@ -111,7 +111,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                 ),
                               ),
                               const SizedBox(
-                                height: 25,
+                                height: 20,
                               ),
                               const Center(
                                 child: Text(
@@ -120,38 +120,48 @@ class _DetailsPageState extends State<DetailsPage> {
                                 ),
                               ),
                               const SizedBox(
-                                height: 7,
+                                height: 5,
                               ),
-                              Center(
-                                child: Text(
-                                  detailedDesc,
-                                  style: const TextStyle(color: Colors.black, fontSize: 15),
-                                  textAlign: TextAlign.justify,
+                              Expanded(
+                                child: SizedBox(
+                                  height: 150,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.vertical,
+                                    child: Text(
+                                      detailedDesc,
+                                      style: const TextStyle(color: Colors.black, fontSize: 15),
+                                      textAlign: TextAlign.justify,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(
-                                height: 15,
-                              ),
-                              Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    for (var item in type.getRange(0, 3))
-                                      Container(
-                                        margin: const EdgeInsets.only(right: 14),
-                                        height: 32,
-                                        width: 95,
-                                        alignment: Alignment.bottomCenter,
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(9),
-                                            border: Border.all(color: Colors.primaries.last)),
-                                        child: Center(
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(color: Colors.black, fontSize: 10),
-                                            )),
-                                      ),
-                                  ],
+                              // const SizedBox(
+                              //   height: 10,
+                              // ),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      for (var item in type)
+                                        Container(
+                                          margin: const EdgeInsets.only(right: 18),
+                                          padding: const EdgeInsets.only(right: 5, left: 5),
+                                          height: 40,
+                                          width: 120,
+                                          alignment: Alignment.bottomCenter,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(9),
+                                              border: Border.all(color: Colors.primaries.last)),
+                                          child: Center(
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(color: Colors.black, fontSize: 10),
+                                              )),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               )
                         ],
