@@ -3,20 +3,22 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:landmark_recognition/models/landmark.dart';
 
-class LandmarkRepository {
+import 'google_repository.dart';
+
+class LandmarkRepository extends GoogleRepository {
   static const String _baseUrl =
-      'https://vision.googleapis.com/v1/images:annotate?key=';
+      'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDsscYGPDgRsWajgWL9t8caMPzm2g5pXoU';
 
-  final Dio _dio;
+  static final LandmarkRepository _instance = LandmarkRepository._();
 
-  LandmarkRepository({Dio? dio}) : _dio = Dio();
+  factory LandmarkRepository() {
+    return _instance;
+  }
 
-  Future<Landmark?> getLandmarkInfo(
-    String encodedImage,
-  ) async {
-    print(_dio);
-    // print(origin);
-    // print(destination);
+  LandmarkRepository._({Dio? dio}) : super(Dio());
+
+  @override
+  Future getLandmarkInfo(String? additionalInfo) async {
 
     var params =  {
       "requests": [
@@ -28,15 +30,13 @@ class LandmarkRepository {
             }
           ],
           "image": {
-            "content": encodedImage
-          }
+            "content": additionalInfo!
+          },
         }
       ]
     };
 
-    // print(json.encode(params));
-
-    final response = await _dio.post(
+    final response = await dio.post(
       _baseUrl,
       data: json.encode(params),
     );
@@ -48,4 +48,5 @@ class LandmarkRepository {
     }
     return null;
   }
+
 }
