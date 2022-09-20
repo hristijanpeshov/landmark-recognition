@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:landmark_recognition/landmark-item.dart';
 import 'package:landmark_recognition/models/hitory-landmark.dart';
-import 'package:landmark_recognition/models/landmark.dart';
 
 
 class LandmarkList extends StatelessWidget {

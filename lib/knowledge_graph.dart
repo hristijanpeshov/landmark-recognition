@@ -6,8 +6,6 @@ class KnowledgeGraph extends GoogleRepository {
 
   var API_KEY = "AIzaSyDsscYGPDgRsWajgWL9t8caMPzm2g5pXoU";
 
-  // final Dio _dio;
-
   static final KnowledgeGraph _instance = KnowledgeGraph._();
 
   factory KnowledgeGraph() {
@@ -21,8 +19,6 @@ class KnowledgeGraph extends GoogleRepository {
   Future getLandmarkInfo(String? additionalInfo) async {
     var service_url = 'https://kgsearch.googleapis.com/v1/entities:search?ids=$additionalInfo&key=$API_KEY&limit=1&indent=True';
     final response = await dio.get(service_url);
-    // print("RESULTTTT");
-    // print(response.data["itemListElement"][0]["result"]["@type"]);
     return LandmarkDetails.fromJson(response.data["itemListElement"][0]["result"]);
   }
 }

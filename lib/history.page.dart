@@ -3,8 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:landmark_recognition/landmark-list.dart';
 import 'package:landmark_recognition/models/hitory-landmark.dart';
-import 'package:landmark_recognition/models/landmark.dart';
-import 'package:landmark_recognition/models/landmark_screen_location.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class HistoryPage extends StatefulWidget {

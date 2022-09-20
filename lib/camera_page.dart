@@ -9,11 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:landmark_recognition/details_page.dart';
 import 'package:landmark_recognition/landmark_repository.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:landmark_recognition/models/landmark.dart';
 import 'package:uuid/uuid.dart';
 
-import 'models/hitory-landmark.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key, required this.cameras}) : super(key: key);
@@ -61,6 +59,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
       behavior: SnackBarBehavior.floating,
       backgroundColor: Color.fromRGBO(0, 25, 51, 70),
       margin: EdgeInsets.only(bottom: position),
+      duration: Duration(seconds: 2),
       content: Text('Double Tap for more info'),
     );
 
@@ -137,7 +136,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
         }
       }
       else {
-        double position = (MediaQuery.of(context).size.height * 0.22).toDouble();
+        double position = (MediaQuery.of(context).size.height * 0.20).toDouble();
         var snackBar = SnackBar(
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.only(bottom: position),
@@ -168,6 +167,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
 
   // Some logic to get the rectangle values
   void updateRectanglePosition(vertices) {
+    showInfoDoubleTap(context);
     setState(() {
       // assign new position
       _position = {
@@ -178,7 +178,6 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
       };
       _isRectangleVisible = true;
 
-      showInfoDoubleTap(context);
     });
   }
 
@@ -303,14 +302,6 @@ class RectanglePainter extends CustomPainter {
     canvas.drawPath(
         Path()
           ..addPolygon([
-            // Offset(
-            //     pos['a']![0], pos['a']![1]),
-            // Offset(
-            //     pos['b']![0], pos['b']![1]),
-            // Offset(
-            //     pos['c']![0], pos['c']![1]),
-            // Offset(
-            //     pos['d']![0], pos['d']![1]),
             Offset(
                 (pos['a']![0] / 1000) * width, (pos['a']![1] / 1000) * height),
             Offset(

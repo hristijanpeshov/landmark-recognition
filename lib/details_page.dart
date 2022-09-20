@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:landmark_recognition/knowledge_graph.dart';
 import 'package:landmark_recognition/models/landmark_details.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 
 class DetailsPage extends StatefulWidget {
   final String? mid;
@@ -94,7 +93,6 @@ class _DetailsPageState extends State<DetailsPage> {
                             alignment: Alignment.bottomRight,
                             fit: BoxFit.cover,
                             image: NetworkImage(imageUrl),
-                            //'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSabVO9_Gci5WDdi_X0NdGxF58jReSIPy8VhHa9vogpW--LVOCC'),
                           )
                         ),
                       ),
@@ -120,9 +118,6 @@ class _DetailsPageState extends State<DetailsPage> {
                                   style: const TextStyle(color: Colors.black, fontSize: 25),
                                 ),
                               ),
-                              // const SizedBox(
-                              //   height: 3,
-                              // ),
                               Center(
                                 child: Text(
                                   desc,
@@ -154,9 +149,6 @@ class _DetailsPageState extends State<DetailsPage> {
                                   ),
                                 ),
                               ),
-                              // const SizedBox(
-                              //   height: 10,
-                              // ),
                               Expanded(
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
@@ -170,22 +162,6 @@ class _DetailsPageState extends State<DetailsPage> {
                                           ),
                                           margin: EdgeInsets.only(right: 5, left: 5),
                                         )
-
-                                        // Container(
-                                        //   margin: const EdgeInsets.only(right: 18),
-                                        //   padding: const EdgeInsets.only(right: 5, left: 5),
-                                        //   height: 40,
-                                        //   width: 120,
-                                        //   alignment: Alignment.bottomCenter,
-                                        //   decoration: BoxDecoration(
-                                        //       borderRadius: BorderRadius.circular(9),
-                                        //       border: Border.all(color: Colors.primaries.last)),
-                                        //   child: Center(
-                                        //       child: Text(
-                                        //         item,
-                                        //         style: const TextStyle(color: Colors.black, fontSize: 10),
-                                        //       )),
-                                        // ),
                                     ],
                                   ),
                                 ),

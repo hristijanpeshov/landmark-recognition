@@ -2,10 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:landmark_recognition/details_page.dart';
 import 'package:landmark_recognition/models/hitory-landmark.dart';
-import 'package:landmark_recognition/models/landmark.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
-import 'dart:io' as Io;
 
 class LandmarkItem extends StatelessWidget {
   HistoryLandmark _landmark;
@@ -30,7 +28,6 @@ class LandmarkItem extends StatelessWidget {
 
   Image getImage(String bytes) {
     print(base64Decode(_landmark.image));
-    // print(base64Encode(Io.File(Image.memory(base64Decode(_landmark.image))).readAsBytesSync()));
     return Image.memory(base64Decode(_landmark.image));
   }
 
@@ -97,43 +94,6 @@ class LandmarkItem extends StatelessWidget {
                   width: 2,
                 )),
             child:
-            // Column(
-            //   children: [
-            //     Row(
-            //       crossAxisAlignment: CrossAxisAlignment.start,
-            //       children: <Widget>[
-            //         Expanded(
-            //           flex: 2,
-            //           child: Text(
-            //             _landmark.description,
-            //             style: TextStyle(
-            //               fontSize: 25,
-            //               color: Theme.of(contx).primaryColorDark,
-            //               fontWeight: FontWeight.bold,
-            //             ),
-            //           ),
-            //         ),
-            //
-            //         Image.memory(base64Decode(_landmark.image), height: 120,),
-            //       ],
-            //     ),
-            //     Row(
-            //       crossAxisAlignment: CrossAxisAlignment.start,
-            //       children: <Widget>[
-            //         Expanded(
-            //           flex: 2,
-            //           child: Text(
-            //                 DateFormat('dd-MM-yyyy – kk:mm').format(_landmark.dateTime),
-            //                 style: TextStyle(
-            //                   fontSize: 18,
-            //                   color: Theme.of(contx).primaryColor,
-            //                 ),
-            //               ),
-            //         ),
-            //       ],
-            //     )
-            //   ],
-            // )
             ListTile(
               title: Text(
                 _landmark.description,
@@ -150,28 +110,9 @@ class LandmarkItem extends StatelessWidget {
                   color: Theme.of(contx).primaryColor,
                 ),
               ),
-              trailing: Image.memory(base64.decode(_landmark.image), ),
+              trailing: Icon(Icons.info_outline, size: 30,),
               onTap: () => cardTapped(context),
             ),
-            //   children: [
-            //     Text(
-            //       _course.name,
-            //       style: TextStyle(
-            //         fontSize: 30,
-            //         color: Theme.of(contx).primaryColorDark,
-            //         fontWeight: FontWeight.bold,
-            //       ),
-            //     ),
-            //     Text(
-            //       DateFormat('yyyy-MM-dd – kk:mm').format(_course.dateTime),
-            //       style: TextStyle(
-            //         fontSize: 20,
-            //         color: Theme.of(contx).primaryColor,
-            //       ),
-            //     ),
-            //     trai
-            //   ],
-            // )
           ),
         ),
       )

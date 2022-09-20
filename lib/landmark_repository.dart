@@ -9,8 +9,6 @@ class LandmarkRepository extends GoogleRepository {
   static const String _baseUrl =
       'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDsscYGPDgRsWajgWL9t8caMPzm2g5pXoU';
 
-  // final Dio _dio;
-
   static final LandmarkRepository _instance = LandmarkRepository._();
 
   factory LandmarkRepository() {
@@ -21,9 +19,6 @@ class LandmarkRepository extends GoogleRepository {
 
   @override
   Future getLandmarkInfo(String? additionalInfo) async {
-    // print(_dio);
-    // print(origin);
-    // print(destination);
 
     var params =  {
       "requests": [
@@ -37,18 +32,9 @@ class LandmarkRepository extends GoogleRepository {
           "image": {
             "content": additionalInfo!
           },
-          // "imageContext": {
-          //   "cropHintsParams": {
-          //     "aspectRatios": [
-          //       0.5625
-          //     ]
-          //   }
-          // },
         }
       ]
     };
-
-    // print(json.encode(params));
 
     final response = await dio.post(
       _baseUrl,
@@ -63,49 +49,4 @@ class LandmarkRepository extends GoogleRepository {
     return null;
   }
 
-
-  // Future<Landmark?> getLandmarkInfo(
-  //   String encodedImage,
-  // ) async {
-  //   print(_dio);
-  //   // print(origin);
-  //   // print(destination);
-  //
-  //   var params =  {
-  //     "requests": [
-  //       {
-  //         "features": [
-  //           {
-  //             "maxResults": 10,
-  //             "type": "LANDMARK_DETECTION"
-  //           }
-  //         ],
-  //         "image": {
-  //           "content": encodedImage
-  //         },
-  //         // "imageContext": {
-  //         //   "cropHintsParams": {
-  //         //     "aspectRatios": [
-  //         //       0.5625
-  //         //     ]
-  //         //   }
-  //         // },
-  //       }
-  //     ]
-  //   };
-  //
-  //   // print(json.encode(params));
-  //
-  //   final response = await _dio.post(
-  //     _baseUrl,
-  //     data: json.encode(params),
-  //   );
-  //   print(response);
-  //
-  //   // Check if response is successful
-  //   if (response.data["responses"][0]["landmarkAnnotations"] != null) {
-  //     return Landmark.fromJson(response.data["responses"][0]["landmarkAnnotations"][0]);
-  //   }
-  //   return null;
-  // }
 }
