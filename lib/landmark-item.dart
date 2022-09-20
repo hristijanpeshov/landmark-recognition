@@ -1,24 +1,37 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:landmark_recognition/details_page.dart';
 import 'package:landmark_recognition/models/hitory-landmark.dart';
 import 'package:landmark_recognition/models/landmark.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'dart:io' as Io;
 
 class LandmarkItem extends StatelessWidget {
   HistoryLandmark _landmark;
   BuildContext contx;
   Function _deleteItem;
   // Function _navigateToLocation;
+  Codec<String, String> stringToBase64 = utf8.fuse(base64);
+
 
   LandmarkItem(this._landmark, this.contx, this._deleteItem);
 
-  void cardTapped() {
-    print('Card tapped');
+  void cardTapped(BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => DetailsPage(mid: _landmark.mid)));
   }
 
   void itemDeleted() {
     print('Item deleted');
+  }
+
+  Image getImage(String bytes) {
+    print(base64Decode(_landmark.image));
+    // print(base64Encode(Io.File(Image.memory(base64Decode(_landmark.image))).readAsBytesSync()));
+    return Image.memory(base64Decode(_landmark.image));
   }
 
   @override
@@ -27,7 +40,7 @@ class LandmarkItem extends StatelessWidget {
       onTap: () => {/*open details here*/},
 
       child: Dismissible(
-        key: ValueKey<String>(_landmark.mid),
+        key: ValueKey<String>(_landmark.dateTime.toString()),
         direction: DismissDirection.endToStart,
         background: Container(
           alignment: Alignment.centerRight,
@@ -137,7 +150,8 @@ class LandmarkItem extends StatelessWidget {
                   color: Theme.of(contx).primaryColor,
                 ),
               ),
-              trailing: Image.memory(base64Decode(_landmark.image)),
+              trailing: Image.memory(base64.decode(_landmark.image), ),
+              onTap: () => cardTapped(context),
             ),
             //   children: [
             //     Text(

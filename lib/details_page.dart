@@ -31,7 +31,7 @@ class _DetailsPageState extends State<DetailsPage> {
 
   Future<LandmarkDetails> getInfo() async {
     final LandmarkDetails details =
-        await KnowledgeGraph().getWikiInfo(widget.mid) as LandmarkDetails;
+        await KnowledgeGraph().getLandmarkInfo(widget.mid) as LandmarkDetails;
     return details;
   }
 
@@ -48,7 +48,26 @@ class _DetailsPageState extends State<DetailsPage> {
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Container(
-                child: Text("ERROR"),
+                margin: EdgeInsets.only(left: 10, right: 10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child:
+                        Text(
+                          'We didn\'t find any information about this landmark.',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               );
             }
 
@@ -146,20 +165,27 @@ class _DetailsPageState extends State<DetailsPage> {
                                     children: [
                                       for (var item in type)
                                         Container(
-                                          margin: const EdgeInsets.only(right: 18),
-                                          padding: const EdgeInsets.only(right: 5, left: 5),
-                                          height: 40,
-                                          width: 120,
-                                          alignment: Alignment.bottomCenter,
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(9),
-                                              border: Border.all(color: Colors.primaries.last)),
-                                          child: Center(
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(color: Colors.black, fontSize: 10),
-                                              )),
-                                        ),
+                                          child: Chip(
+                                            label: Text(item),
+                                          ),
+                                          margin: EdgeInsets.only(right: 5, left: 5),
+                                        )
+
+                                        // Container(
+                                        //   margin: const EdgeInsets.only(right: 18),
+                                        //   padding: const EdgeInsets.only(right: 5, left: 5),
+                                        //   height: 40,
+                                        //   width: 120,
+                                        //   alignment: Alignment.bottomCenter,
+                                        //   decoration: BoxDecoration(
+                                        //       borderRadius: BorderRadius.circular(9),
+                                        //       border: Border.all(color: Colors.primaries.last)),
+                                        //   child: Center(
+                                        //       child: Text(
+                                        //         item,
+                                        //         style: const TextStyle(color: Colors.black, fontSize: 10),
+                                        //       )),
+                                        // ),
                                     ],
                                   ),
                                 ),

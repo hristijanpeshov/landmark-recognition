@@ -55,6 +55,18 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
     super.dispose();
   }
 
+  void showInfoDoubleTap(BuildContext context) {
+    double position = (MediaQuery.of(context).size.height * 0.15).toDouble();
+    var snackBar = SnackBar(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Color.fromRGBO(0, 25, 51, 70),
+      margin: EdgeInsets.only(bottom: position),
+      content: Text('Double Tap for more info'),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -107,7 +119,6 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
       await _cameraController.setFlashMode(FlashMode.off);
       XFile picture = await _cameraController.takePicture();
       var decodedImage = await decodeImageFromList(Io.File(picture.path).readAsBytesSync());
-      print('hereherehere');
       print(decodedImage.width);
       print(decodedImage.height);
       final bytes = Io.File(picture.path).readAsBytesSync();
@@ -126,7 +137,7 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
         }
       }
       else {
-        double position = (MediaQuery.of(context).size.height * 0.25).toDouble();
+        double position = (MediaQuery.of(context).size.height * 0.22).toDouble();
         var snackBar = SnackBar(
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.only(bottom: position),
@@ -166,6 +177,8 @@ class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin{
         'd': [vertices[3].x.toDouble(), vertices[3].y.toDouble()],
       };
       _isRectangleVisible = true;
+
+      showInfoDoubleTap(context);
     });
   }
 

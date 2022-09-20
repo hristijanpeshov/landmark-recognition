@@ -62,6 +62,7 @@ class _HistoryPageState extends State<HistoryPage> with TickerProviderStateMixin
         setState(() {
           print('setstate');
           historyLandmarks = tmpLandmarks;
+          historyLandmarks.sort((a, b) => b.dateTime.compareTo(a.dateTime));
         });
       }
     });
